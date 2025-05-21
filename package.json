@@ -2,12 +2,6 @@
   "name": "fe",
   "version": "1.0.0",
   "private": true,
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "CI='' react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
-  },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.7",
     "daisyui": "^5.0.35",
@@ -19,8 +13,11 @@
     "react-scripts": "^5.0.1",
     "tailwindcss": "^4.1.7"
   },
-  "devDependencies": {
-    "@babel/plugin-proposal-private-property-in-object": "^7.21.11"
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "set CI=false && react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
   },
   "eslintConfig": {
     "extends": [
