@@ -1,5 +1,5 @@
 import React from 'react';
-import QRGenerator from './QRGenerator';  // Thêm dòng này
+// import QRGenerator from './QRGenerator';  // Thêm dòng này
 
 
 const MenuList = ({ menu = [], onShowDetail }) => {

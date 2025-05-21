@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import QRGenerator from './QRGenerator';  // Thêm dòng này
+// import QRGenerator from './QRGenerator';  // Thêm dòng này
 
 const FoodDetailModal = ({ open, onClose, food, onAddToCart }) => {
   const [quantity, setQuantity] = useState(1);
