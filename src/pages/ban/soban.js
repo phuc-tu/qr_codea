@@ -229,75 +229,126 @@ const Soban = () => {
         : MENU.filter(item => item.category === category);
 
     return (
-        <div style={{ maxWidth: 600, margin: "20px auto", paddingBottom: 80 }}>
-            <h2 style={{ textAlign: "center", color: "#00b050" }}>
-                - Bàn số {id} -
-            </h2>
-
-            {/* Categories */}
+        <div style={{ 
+            width: "100%",
+            height: "100vh",
+            display: "flex",
+            flexDirection: "column",
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0
+        }}>
+            {/* Fixed Header */}
             <div style={{
-                display: "flex",
-                overflowX: "auto",
-                gap: 10,
-                padding: "10px 0",
-                marginBottom: 20,
-                justifyContent: "center"
+                position: "fixed",
+                top: 0,
+                left: 0,
+                right: 0,
+                background: "white",
+                zIndex: 50,
+                boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
             }}>
-                {CATEGORIES.map(cat => (
-                    <div
-                        key={cat.key}
-                        onClick={() => setCategory(cat.key)}
-                        style={{
-                            padding: "8px 16px",
-                            borderRadius: 20,
-                            background: category === cat.key ? "#00b050" : "#f5f5f5",
-                            color: category === cat.key ? "white" : "#333",
-                            cursor: "pointer",
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 4
-                        }}
-                    >
-                        <span>{cat.icon}</span>
-                        <span>{cat.label}</span>
-                    </div>
-                ))}
+                {/* Title */}
+                <h2 style={{ 
+                    margin: 0,
+                    padding: "12px",
+                    textAlign: "center", 
+                    color: "#00b050",
+                    fontSize: "18px",
+                    borderBottom: "1px solid #eee"
+                }}>
+                    - Bàn số {id} -
+                </h2>
+
+                {/* Scrollable Categories */}
+                <div style={{
+                    display: "flex",
+                    overflowX: "auto",
+                    WebkitOverflowScrolling: "touch",
+                    padding: "10px",
+                    gap: 10,
+                    background: "white",
+                    scrollbarWidth: "none", // Firefox
+                    msOverflowStyle: "none", // IE/Edge
+                    "&::-webkit-scrollbar": { display: "none" } // Chrome/Safari
+                }}>
+                    {CATEGORIES.map(cat => (
+                        <div
+                            key={cat.key}
+                            onClick={() => setCategory(cat.key)}
+                            style={{
+                                padding: "10px 20px",
+                                borderRadius: 20,
+                                background: category === cat.key ? "#00b050" : "#f5f5f5",
+                                color: category === cat.key ? "white" : "#333",
+                                cursor: "pointer",
+                                whiteSpace: "nowrap",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 6,
+                                fontSize: "15px"
+                            }}
+                        >
+                            <span style={{fontSize: "18px"}}>{cat.icon}</span>
+                            <span>{cat.label}</span>
+                        </div>
+                    ))}
+                </div>
             </div>
 
-            {/* Menu Items */}
-            <MenuList menu={filteredMenu} onShowDetail={setFoodDetail} />
+            {/* Scrollable Menu Content */}
+            <div style={{
+                flex: 1,
+                overflowY: "auto",
+                marginTop: "110px", // Header height
+                marginBottom: "65px", // Cart bar height
+                padding: "0 10px",
+                background: "#f5f5f5"
+            }}>
+                <MenuList menu={filteredMenu} onShowDetail={setFoodDetail} />
+            </div>
 
-            {/* Cart Bar */}
+            {/* Fixed Cart Bar */}
             <div style={{
                 position: "fixed",
                 bottom: 0,
                 left: 0,
                 right: 0,
+                height: "60px",
                 background: "white",
-                borderTop: "1px solid #eee",
-                padding: 15,
                 display: "flex",
-                justifyContent: "space-between",
                 alignItems: "center",
-                zIndex: 10
+                justifyContent: "space-between",
+                padding: "0 15px",
+                boxShadow: "0 -2px 4px rgba(0,0,0,0.1)",
+                zIndex: 50
             }}>
-                <div style={{ fontSize: 22, color: "red" }}>
-                    🛒 {cart.length}
+                <div style={{
+                    fontSize: "24px",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 5
+                }}>
+                    🛒 <span style={{color: "red"}}>{cart.length}</span>
                 </div>
                 <button 
+                    onClick={() => setShowCart(true)}
+                    disabled={cart.length === 0}
                     style={{
                         background: "red",
                         color: "white",
                         border: "none",
-                        borderRadius: 4,
-                        padding: "8px 24px",
+                        borderRadius: 8,
+                        padding: "12px 30px",
+                        fontSize: "16px",
                         fontWeight: "bold",
-                        cursor: "pointer"
+                        cursor: cart.length ? "pointer" : "not-allowed",
+                        opacity: cart.length ? 1 : 0.6
                     }}
-                    onClick={() => setShowCart(true)}
-                    disabled={cart.length === 0}
                 >
-                    Thanh toán
+                    THANH TOÁN
                 </button>
             </div>
 
@@ -309,15 +360,17 @@ const Soban = () => {
                     left: 0,
                     right: 0,
                     bottom: 0,
-                    background: "rgba(0,0,0,0.3)",
-                    zIndex: 100
+                    background: "rgba(0,0,0,0.5)",
+                    zIndex: 100,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center"
                 }} onClick={() => setShowCart(false)}>
                     <div style={{
                         background: "white",
+                        width: "90%",
                         maxWidth: 350,
-                        margin: "60px auto",
                         borderRadius: 8,
-                        boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
                         position: "relative"
                     }} onClick={e => e.stopPropagation()}>
                         <Cart cartItems={cart} onCheckout={handleCheckout} />
@@ -327,7 +380,7 @@ const Soban = () => {
                             right: 12,
                             background: "transparent",
                             border: "none",
-                            fontSize: 22,
+                            fontSize: 24,
                             cursor: "pointer"
                         }} onClick={() => setShowCart(false)}>×</button>
                     </div>
@@ -350,7 +403,7 @@ const Soban = () => {
                     left: 0,
                     right: 0,
                     bottom: 0,
-                    background: "rgba(0,0,0,0.2)",
+                    background: "rgba(0,0,0,0.5)",
                     zIndex: 200,
                     display: "flex",
                     alignItems: "center",
@@ -358,15 +411,13 @@ const Soban = () => {
                 }}>
                     <div style={{
                         background: "white",
-                        padding: "32px 40px",
-                        borderRadius: 12,
-                        boxShadow: "0 2px 12px rgba(0,0,0,0.18)",
-                        fontSize: 22,
-                        color: "green",
+                        padding: "20px 30px",
+                        borderRadius: 8,
+                        fontSize: "18px",
                         fontWeight: "bold",
-                        textAlign: "center"
+                        color: "green"
                     }}>
-                        Bạn đã thanh toán thành công!
+                        Đặt món thành công!
                     </div>
                 </div>
             )}
