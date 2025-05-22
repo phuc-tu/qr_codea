@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import MenuList from "../../components/MenuList";
 import Cart from "../../components/Cart";
 import FoodDetailModal from "../../components/FoodDetailModal";
+
+const ITEMS_PER_PAGE = 8;
 
 const CATEGORIES = [
     { key: "all", label: "Tất cả", icon: "🍽️" },
@@ -200,7 +202,7 @@ const MENU = [
         desc: "Yaourt đá đường",
         price: 20000,
         category: "desserts",
-        img: "/img/desserts/yaourt.jpg",
+        img: "/img/4.jpg",
         options: ["Thêm đường", "Ít đường", "Thêm đá", "Ít đá"]
     }
 ];
@@ -212,6 +214,20 @@ const Soban = () => {
     const [showCart, setShowCart] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
     const [foodDetail, setFoodDetail] = useState(null);
+    const [visibleItems, setVisibleItems] = useState(ITEMS_PER_PAGE);
+    const menuRef = useRef(null);
+
+    const handleScroll = () => {
+        if (!menuRef.current) return;
+        const { scrollTop, scrollHeight, clientHeight } = menuRef.current;
+        if (scrollTop + clientHeight >= scrollHeight - 20) {
+            setVisibleItems(prev => Math.min(prev + ITEMS_PER_PAGE, filteredMenu.length));
+        }
+    };
+
+    useEffect(() => {
+        setVisibleItems(ITEMS_PER_PAGE);
+    }, [category]);
 
     const handleAddToCart = (item) => {
         setCart([...cart, {...item, quantity: 1}]);
@@ -228,6 +244,8 @@ const Soban = () => {
         ? MENU 
         : MENU.filter(item => item.category === category);
 
+    const displayedMenu = filteredMenu.slice(0, visibleItems);
+
     return (
         <div style={{ 
             width: "100%",
@@ -238,9 +256,10 @@ const Soban = () => {
             top: 0,
             left: 0,
             right: 0,
-            bottom: 0
+            bottom: 0,
+            background: "#f5f5f5"
         }}>
-            {/* Fixed Header */}
+            {/* Header */}
             <div style={{
                 position: "fixed",
                 top: 0,
@@ -250,7 +269,6 @@ const Soban = () => {
                 zIndex: 50,
                 boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
             }}>
-                {/* Title */}
                 <h2 style={{ 
                     margin: 0,
                     padding: "12px",
@@ -262,7 +280,7 @@ const Soban = () => {
                     - Bàn số {id} -
                 </h2>
 
-                {/* Scrollable Categories */}
+                {/* Categories */}
                 <div style={{
                     display: "flex",
                     overflowX: "auto",
@@ -270,9 +288,9 @@ const Soban = () => {
                     padding: "10px",
                     gap: 10,
                     background: "white",
-                    scrollbarWidth: "none", // Firefox
-                    msOverflowStyle: "none", // IE/Edge
-                    "&::-webkit-scrollbar": { display: "none" } // Chrome/Safari
+                    scrollbarWidth: "none",
+                    msOverflowStyle: "none",
+                    "&::-webkit-scrollbar": { display: "none" }
                 }}>
                     {CATEGORIES.map(cat => (
                         <div
@@ -288,7 +306,8 @@ const Soban = () => {
                                 display: "flex",
                                 alignItems: "center",
                                 gap: 6,
-                                fontSize: "15px"
+                                fontSize: "15px",
+                                transition: "all 0.2s ease"
                             }}
                         >
                             <span style={{fontSize: "18px"}}>{cat.icon}</span>
@@ -298,19 +317,41 @@ const Soban = () => {
                 </div>
             </div>
 
-            {/* Scrollable Menu Content */}
-            <div style={{
-                flex: 1,
-                overflowY: "auto",
-                marginTop: "110px", // Header height
-                marginBottom: "65px", // Cart bar height
-                padding: "0 10px",
-                background: "#f5f5f5"
-            }}>
-                <MenuList menu={filteredMenu} onShowDetail={setFoodDetail} />
-            </div>
-
-            {/* Fixed Cart Bar */}
+            {/* Menu Content with infinite scroll */}
+<div 
+    ref={menuRef}
+    onScroll={handleScroll}
+    style={{
+        flex: 1,
+        overflowY: "auto",
+        marginTop: "110px", 
+        marginBottom: "65px",
+        padding: "0 10px",
+        display: "flex",
+        flexDirection: "column"
+    }}
+>
+    <div style={{
+        flex: "1 0 auto",
+        minHeight: displayedMenu.length < 4 
+            ? "calc(100vh - 175px)" 
+            : "auto"
+    }}>
+        <MenuList menu={displayedMenu} onShowDetail={setFoodDetail} />
+    </div>
+    
+    {visibleItems < filteredMenu.length && (
+        <div style={{
+            textAlign: "center",
+            padding: "15px",
+            color: "#666",
+            fontSize: "14px"
+        }}>
+            Đang tải thêm...
+        </div>
+    )}
+</div>
+            {/* Cart Bar */}
             <div style={{
                 position: "fixed",
                 bottom: 0,
@@ -326,12 +367,28 @@ const Soban = () => {
                 zIndex: 50
             }}>
                 <div style={{
-                    fontSize: "24px",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 5
+                    position: "relative",
+                    fontSize: "28px"
                 }}>
-                    🛒 <span style={{color: "red"}}>{cart.length}</span>
+                    🛒
+                    {cart.length > 0 && (
+                        <span style={{
+                            position: "absolute",
+                            top: -8,
+                            right: -8,
+                            background: "red",
+                            color: "white",
+                            borderRadius: "50%",
+                            width: 20,
+                            height: 20,
+                            fontSize: 12,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center"
+                        }}>
+                            {cart.length}
+                        </span>
+                    )}
                 </div>
                 <button 
                     onClick={() => setShowCart(true)}
@@ -341,11 +398,12 @@ const Soban = () => {
                         color: "white",
                         border: "none",
                         borderRadius: 8,
-                        padding: "12px 30px",
+                        padding: "12px 32px",
                         fontSize: "16px",
                         fontWeight: "bold",
                         cursor: cart.length ? "pointer" : "not-allowed",
-                        opacity: cart.length ? 1 : 0.6
+                        opacity: cart.length ? 1 : 0.6,
+                        transition: "all 0.2s ease"
                     }}
                 >
                     THANH TOÁN
